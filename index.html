@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You 💖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Indie+Flower&family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* --- 1. AESTHETICS & BACKGROUND --- */
+        :root {
+            --primary: #ff5d8f;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.9);
+            --text-color: #590d22;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* THE GRADIENT: Pink, Orange, Lavender, Yellow */
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #e0c3fc, #fffec8);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            /* Custom Cursor Icon */
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%23ff5d8f"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'), auto;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1, h2, h3 { font-family: 'Dancing Script', cursive; color: #d63384; }
+
+        /* --- HEART TRAIL ANIMATION --- */
+        .trail-heart {
+            position: absolute;
+            top: 0; left: 0;
+            font-size: 20px;
+            color: var(--primary);
+            pointer-events: none; /* Let clicks pass through */
+            animation: floatUp 1s ease-out forwards;
+            z-index: 99999;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+        }
+
+        /* --- 2. WELCOME SCREEN --- */
+        #welcome-gate {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            background: #fff0f3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease-out;
+        }
+
+        .enter-btn {
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Dancing Script', cursive;
+            transition: transform 0.2s;
+            box-shadow: 0 5px 15px rgba(255, 93, 143, 0.3);
+        }
+        .enter-btn:hover { transform: scale(1.1); background: var(--primary); color: white; }
+
+        /* --- 3. MAIN CONTAINER & GLASS PANELS --- */
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: none; /* Hidden until opened */
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 35px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        /* --- 4. INFINITE LOVE METER --- */
+        .meter-container {
+            width: 100%; height: 30px; background: #eee; border-radius: 15px;
+            margin: 20px 0; overflow: hidden; border: 2px solid white; position: relative;
+        }
+        .fill {
+            height: 100%; width: 10%;
+            background: linear-gradient(90deg, #ff9a9e, #ff477e);
+            transition: width 0.3s ease;
+        }
+        .fill.overload {
+            background: linear-gradient(90deg, #ff0000, #ff477e);
+            animation: shake 0.5s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+        .action-btn {
+            background: var(--primary); color: white; border: none; padding: 10px 20px;
+            border-radius: 30px; cursor: pointer; font-family: 'Poppins', sans-serif;
+            transition: 0.3s;
+        }
+        .action-btn:hover { transform: scale(1.05); }
+
+        /* --- 5. SCRATCH CARD --- */
+        .scratch-container {
+            position: relative; width: 300px; height: 150px; margin: 0 auto;
+            background: white; border-radius: 15px; overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer;
+        }
+        .hidden-message {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1rem; color: var(--primary);
+            padding: 20px; box-sizing: border-box; z-index: 1;
+        }
+        canvas { position: absolute; top: 0; left: 0; z-index: 2; }
+
+        /* --- 6. LOVE NOTE --- */
+        .paper {
+            background: #fffdf0; padding: 20px; box-shadow: 2px 3px 10px rgba(0,0,0,0.1);
+            font-family: 'Indie Flower', cursive; font-size: 1.3rem; line-height: 1.6;
+            min-height: 100px; margin-top: 20px; border-radius: 5px; transform: rotate(-1deg);
+            color: #333; position: relative; text-align: left;
+        }
+
+        /* --- 7. DATE PLANNER & JAR & COUPONS --- */
+        .mood-grid, .coupon-grid, .reasons-grid {
+            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;
+        }
+        .mood-btn {
+            padding: 8px 15px; border: 1px solid var(--primary); border-radius: 20px;
+            background: white; color: var(--primary); cursor: pointer; transition: 0.3s;
+        }
+        .mood-btn:hover { background: var(--primary); color: white; }
+        
+        .jar-icon { font-size: 60px; cursor: pointer; display: inline-block; transition: 0.3s; }
+        .jar-icon:hover { transform: rotate(15deg); }
+
+        .reason-card {
+            background: white; padding: 10px; border-radius: 10px; width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 0.9rem; text-align: left;
+        }
+
+        .coupon {
+            border: 2px dashed var(--primary); background: white; padding: 15px;
+            border-radius: 10px; cursor: pointer; width: 45%; flex-grow: 1;
+        }
+        .coupon.redeemed { opacity: 0.5; background: #eee; cursor: default; position: relative; }
+        .coupon.redeemed::after {
+            content: 'USED'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            color: red; border: 2px solid red; padding: 5px; font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="welcome-gate">
+        <h1 style="font-size: 3.5rem;">Your Gift Awaits 🎁</h1>
+        <p>A little something for my favorite person.</p>
+        <button class="enter-btn" onclick="enterSite()">Open</button>
+    </div>
+
+    <div class="container" id="main-app">
+        
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1>Welcome Home, Baby</h1>
+            <p>I appreciate you more than words can say.</p>
+        </div>
+
+        <div class="glass-panel">
+            <h2>The Infinite Love Meter</h2>
+            <p>Try to fill it up. I dare you.</p>
+            <div class="meter-container">
+                <div id="love-bar" class="fill"></div>
+            </div>
+            <p id="meter-text" style="font-weight: bold;">Level: 10%</p>
+            <button class="action-btn" onclick="addLove()">💖 Send Love</button>
+        </div>
+
+        <div class="glass-panel">
+            <h2>A Secret Message 🤫</h2>
+            <p>Scratch to reveal:</p>
+            <div class="scratch-container" id="scratch-box">
+                <div class="hidden-message">
+                    "Even on your worst days, you are still my favorite person." ❤️
+                </div>
+                <canvas id="scratchCanvas"></canvas>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <h2>💌 Instant Love Note</h2>
+            <button class="action-btn" onclick="generateNote()">Write me a letter</button>
+            <div id="note-paper" class="paper" style="display:none;"></div>
+        </div>
+
+        <div class="glass-panel">
+            <h2>✨ Magic Date Planner</h2>
+            <p>How are you feeling right now?</p>
+            <div class="mood-grid">
+                <button class="mood-btn" onclick="planDate('tired')">🥱 Tired</button>
+                <button class="mood-btn" onclick="planDate('romantic')">🌹 Romantic</button>
+                <button class="mood-btn" onclick="planDate('hungry')">🍕 Hungry</button>
+                <button class="mood-btn" onclick="planDate('adventurous')">🌲 Adventurous</button>
+            </div>
+            <div id="date-result" style="margin-top:20px; font-style:italic;"></div>
+        </div>
+
+        <div class="glass-panel">
+            <h2>🍯 Jar of Reasons</h2>
+            <div class="jar-icon" onclick="shakeJar()">🍯</div>
+            <div class="reasons-grid">
+                <div class="reason-card">1. The way you smile.</div>
+                <div class="reason-card">2. How you support my dreams.</div>
+                <div class="reason-card">3. Your terrible jokes.</div>
+                <div class="reason-card">4. How safe I feel with you.</div>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <h2>🎟️ Love Coupons</h2>
+            <div class="coupon-grid">
+                <div class="coupon" onclick="redeemCoupon(this)">
+                    <h3>Movie Night 🎬</h3>
+                    <p>My treat, your choice.</p>
+                </div>
+                <div class="coupon" onclick="redeemCoupon(this)">
+                    <h3>Massage 💆‍♂️</h3>
+                    <p>15 mins, no complaints.</p>
+                </div>
+            </div>
+        </div>
+
+        <p style="text-align: center; color: var(--text-color); opacity: 0.7;">Made with ❤️</p>
+    </div>
+
+    <script>
+        // --- 0. HEART TRAIL EFFECT ---
+        document.addEventListener('mousemove', function(e) {
+            let heart = document.createElement('div');
+            heart.className = 'trail-heart';
+            heart.innerText = '❤️';
+            heart.style.left = e.pageX + 'px';
+            heart.style.top = e.pageY + 'px';
+            
+            // Random size variation
+            let size = Math.random() * 15 + 8;
+            heart.style.fontSize = size + 'px';
+            
+            // Random rotation for more natural look
+            heart.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+
+            document.body.appendChild(heart);
+
+            // Remove after animation
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        });
+
+        // --- 1. ENTER SITE (Confetti + Hearts) ---
+        function enterSite() {
+            const gate = document.getElementById('welcome-gate');
+            gate.style.opacity = '0';
+            setTimeout(() => {
+                gate.style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                // Mix of circles and hearts
+                confetti({ 
+                    particleCount: 150, 
+                    spread: 100, 
+                    origin: { y: 0.6 },
+                    shapes: ['circle', 'heart'],
+                    colors: ['#ff5d8f', '#ff9a9e', '#fad0c4', '#ffffff']
+                });
+            }, 1000);
+        }
+
+        // --- 2. INFINITE LOVE METER (Confetti + Hearts) ---
+        let loveLevel = 10;
+        function addLove() {
+            let bar = document.getElementById('love-bar');
+            let text = document.getElementById('meter-text');
+            loveLevel += Math.floor(Math.random() * 20) + 10;
+            if (loveLevel < 100) {
+                bar.style.width = loveLevel + '%';
+                text.innerText = "Level: " + loveLevel + "%";
+            } else {
+                bar.style.width = '100%';
+                bar.classList.add('overload');
+                text.innerText = "ERROR: LOVE IMMEASURABLE! 🤯";
+                text.style.color = "red";
+                // BIG explosion of hearts and confetti
+                confetti({ 
+                    particleCount: 300, 
+                    spread: 120, 
+                    shapes: ['circle', 'heart'],
+                    colors: ['#ff0000', '#ff5d8f', '#ffffff']
+                 });
+            }
+        }
+
+        // --- 3. SCRATCH CARD ---
+        const canvas = document.getElementById('scratchCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 300; canvas.height = 150;
+        ctx.fillStyle = '#C0C0C0'; 
+        ctx.fillRect(0, 0, 300, 150);
+        ctx.fillStyle = '#555'; ctx.font = '20px Poppins'; ctx.fillText("Scratch Here!", 85, 80);
+        
+        let isDrawing = false;
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let x, y;
+            if(e.type.includes('touch')) {
+                x = e.touches[0].clientX - rect.left;
+                y = e.touches[0].clientY - rect.top;
+            } else {
+                x = e.clientX - rect.left;
+                y = e.clientY - rect.top;
+            }
+            return {x, y};
+        }
+        function scratch(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath(); ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2); ctx.fill();
+        }
+        canvas.addEventListener('mousedown', () => isDrawing = true);
+        canvas.addEventListener('touchstart', () => isDrawing = true);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('touchend', () => isDrawing = false);
+        canvas.addEventListener('mousemove', scratch);
+        canvas.addEventListener('touchmove', scratch);
+
+        // --- 4. LOVE NOTE ---
+        const notes = [
+            "You are my favorite notification. It makes me smile like an idiot and makes me want to run to you.",
+            "I love you more than pizza. And that says a lot. But I know you love me even more than that and that makes me the luckiest girl in this world because I get loved by the most amazing man in this world.",
+            "Just a reminder: You are doing amazing. I am always here by your side, no matter which iceberg collides with our ship and how grand the shipwreck is, I will be with you, holding your hands no matter what.",
+            "I am so lucky to call you mine. It ives me immense pride to do so because I know you are working the hardest just for our better future and nothing makes me happier."
+        ];
+        function generateNote() {
+            const paper = document.getElementById('note-paper');
+            paper.style.display = 'block';
+            paper.innerText = "Writing...";
+            setTimeout(() => {
+                paper.innerText = notes[Math.floor(Math.random() * notes.length)];
+            }, 500);
+        }
+
+        // --- 5. DATE PLANNER ---
+        const plans = {
+            tired: "Pajamas, Takeout, Movie. Cuddles mandatory.",
+            romantic: "Candlelight dinner (even if it's burgers), slow music, phone-free time.",
+            hungry: "Food Crawl! Appetizers at one place, Main at another, Dessert at a third.",
+            adventurous: "Night drive to nowhere with a loud playlist."
+        };
+        function planDate(mood) {
+            document.getElementById('date-result').innerText = plans[mood];
+        }
+
+        // --- 6. JAR SHAKE (Confetti + Hearts) ---
+        function shakeJar() {
+            const jar = document.querySelector('.jar-icon');
+            jar.style.transform = "rotate(20deg)";
+            setTimeout(() => jar.style.transform = "rotate(-20deg)", 200);
+            setTimeout(() => jar.style.transform = "rotate(0deg)", 400);
+            // Burst of hearts and confetti from the jar
+            confetti({ 
+                particleCount: 60, 
+                spread: 50, 
+                origin: { y: 0.8 },
+                shapes: ['circle', 'heart']
+            });
+        }
+
+        // --- 7. COUPONS (Confetti + Hearts) ---
+        function redeemCoupon(el) {
+            if (!el.classList.contains('redeemed')) {
+                el.classList.add('redeemed');
+                // Burst when redeemed
+                confetti({ 
+                    particleCount: 80, 
+                    spread: 70,
+                    shapes: ['circle', 'heart']
+                });
+            }
+        }
+    </script>
+</body>
+</html>
